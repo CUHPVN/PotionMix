@@ -14,10 +14,6 @@ public class Cauldren : GameUnit
 
     private void SpawnIngredient()
     {
-        while (!PoolControler.Instance.isLoaded)
-        {
-
-        }
         foreach  (var slot in slots) 
         {
             Ingredient ingredient=null;

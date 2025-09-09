@@ -1138,14 +1138,13 @@ MonoBehaviour:
   poolAmounts:
   - prefab: {fileID: 1127210445141184853, guid: 3a94d44545f8d2549937f43f1f3c7277, type: 3}
     parent: {fileID: 2119703950}
-    amount: 1
+    amount: 0
   - prefab: {fileID: 7352157544415586849, guid: c773a7132bf7ddd4daf8433d820e858f, type: 3}
     parent: {fileID: 683875296}
-    amount: 1
+    amount: 0
   - prefab: {fileID: 8057362487087672726, guid: d6b0bc296ff0ac04297cf67550805942, type: 3}
     parent: {fileID: 1380142694}
-    amount: 1
-  isLoaded: 0
+    amount: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

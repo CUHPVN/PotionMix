@@ -21,6 +21,7 @@ public class DragVector : Singleton<DragVector>
     }
     void Run()
     {
+
         if (Input.GetMouseButtonDown(0))
         {
             startPos = m_Camera.ScreenToWorldPoint(Input.mousePosition);
@@ -34,5 +35,6 @@ public class DragVector : Singleton<DragVector>
             m_IsDragging = false;
         }
         delta = currentPos - startPos;
+        
     }
 }

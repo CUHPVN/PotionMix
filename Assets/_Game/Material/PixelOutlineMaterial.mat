@@ -42,6 +42,7 @@ Material:
     m_Ints: []
     m_Floats:
     - CORNERS: 0
+    - _OutLine_Scale: 1
     - _OutlineThickness: 1
     m_Colors:
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
