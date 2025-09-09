@@ -1,0 +1,31 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PoolControler : Singleton<PoolControler>
+{
+    [SerializeField] PoolAmount[] poolAmounts;
+    public bool isLoaded=false;
+    private void Awake()
+    {
+        for(int i = 0; i < poolAmounts.Length; i++)
+        {
+            SimplePool.PreLoad(poolAmounts[i].prefab, poolAmounts[i].amount, poolAmounts[i].parent);
+        }
+        isLoaded = true;
+    }
+}
+[System.Serializable]
+public class PoolAmount
+{
+    public GameUnit prefab;
+    public Transform parent;
+    public int amount;
+}
+public enum PoolType
+{
+    None=0,
+    Cauldren=1,
+    Ingredient=2,
+    QueueIngredient=3,
+}
