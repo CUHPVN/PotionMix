@@ -1387,7 +1387,7 @@
     "m_FloatType": 1,
     "m_RangeValues": {
         "x": 0.0,
-        "y": 1.0
+        "y": 3.0
     }
 }
 
@@ -2216,7 +2216,7 @@
     "m_ObjectId": "2a2b688073b242b5a1f536c8d35565a1",
     "m_Title": "Combine Texture and Outlines",
     "m_Position": {
-        "x": 910.666748046875,
+        "x": 910.6666259765625,
         "y": 547.9999389648438
     }
 }
