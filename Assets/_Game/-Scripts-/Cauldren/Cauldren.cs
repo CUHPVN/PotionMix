@@ -19,6 +19,7 @@ public class Cauldren : GameUnit
             Ingredient ingredient=null;
             if(Random.Range(0, 2)==1) ingredient = SimplePool.Spawn<Ingredient>(PoolType.Ingredient, slot.transform.position, Quaternion.identity);
             slot.SetIngredientInstance(ingredient);
+            slot.SetParent(this);
         }
         for (int i = 0; i < size; i++)
         {

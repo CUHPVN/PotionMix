@@ -36,6 +36,10 @@ public static class SimplePool
         }
         poolInstance[unit.PoolType].Despawn(unit); 
     }
+    public static void ClearPool()
+    {
+        poolInstance.Clear();
+    }
     public static void Collect(PoolType poolType)
     {
         if (!poolInstance.ContainsKey(poolType))
@@ -94,9 +98,9 @@ public class Pool
         GameUnit unit;
         if (inactives.Count <= 0) unit = GameObject.Instantiate(prefab, parent);
         else unit = inactives.Dequeue();
-        unit.TF.SetPositionAndRotation(position, rotation);
         actives.Add(unit);
         unit.gameObject.SetActive(true);
+        unit.TF.SetPositionAndRotation(position, rotation);
         return unit;
     }
     public void Despawn(GameUnit unit)

@@ -14,17 +14,20 @@ public class LevelManager : Singleton<LevelManager>
     }
     void Start()
     {
-        for(int i = 0; i < height; i++)
+        LoadLevel();
+    }
+    void LoadLevel()
+    {
+        for (int i = 0; i < height; i++)
         {
-            for(int j= 0; j < width; j++)
+            for (int j = 0; j < width; j++)
             {
-                Vector2 pos = new Vector2(j - (float)width / 2+0.5f, i - (float)height / 2+0.5f)*offset;
+                Vector2 pos = new Vector2(j - (float)width / 2 + 0.5f, i - (float)height / 2 + 0.5f) * offset;
                 Cauldren cauldren = SimplePool.Spawn<Cauldren>(PoolType.Cauldren, pos, Quaternion.identity);
                 cauldren.OnInit();
             }
         }
     }
-
     void Update()
     {
         

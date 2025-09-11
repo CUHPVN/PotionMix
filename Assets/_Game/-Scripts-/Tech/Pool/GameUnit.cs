@@ -9,10 +9,8 @@ public class GameUnit : MonoBehaviour {
     public Transform TF { 
         get
         {
-            if (tf == null)
-            {
-                tf = transform;
-            }
+            if (this == null || gameObject == null) return null;
+            if (tf == null) tf = transform;
             return tf;
         }  
     }

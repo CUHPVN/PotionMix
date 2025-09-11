@@ -41,12 +41,12 @@ public class Ingredient : GameUnit
     public void OnChosed()
     {
         if (!chosed) return;
-        if (PlayerManager.Instance.dragState==PlayerManager.DragState.Dragging)
+        if (InputHandler.Instance.inputType == InputType.Drag && PlayerManager.Instance.isFocused)
         {
-            transform.position = latePos + (Vector3)DragVector.Instance.delta;
+            transform.position = latePos + (Vector3)InputHandler.Instance.GetDragVector();
         }
     }
-    public void ReturnCauldren()
+    public void MoveFail()
     {
         NotChosed();
         MoveToNewPos();

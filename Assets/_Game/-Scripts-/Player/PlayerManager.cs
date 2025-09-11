@@ -4,171 +4,123 @@ using UnityEngine;
 
 public class PlayerManager : Singleton<PlayerManager>
 {
-    [SerializeField] private Camera _camera;
     [SerializeField] private LayerMask slotLayer;
     [SerializeField] private LayerMask cauldrenLayer;
 
-    private CauldrenSlot currentSlot;
-    private CauldrenSlot beforeSlot;
+    [SerializeField] private CauldrenSlot currentSlot;
+    [SerializeField] private Ingredient currentIngredient;
 
-    public DragState dragState = DragState.None;
+    [SerializeField] public bool isSelected=false;
+    [SerializeField] public bool isFocused=false;
 
     private void Awake()
     {
-        _camera = Camera.main;
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0)) StartDrag();
-        CheckSelected();
-        if (Input.GetMouseButtonUp(0)) EndDrag();
+        if (InputHandler.Instance.inputPhase == InputPhase.OnMouseDown) StartDrag();
+        else if(InputHandler.Instance.inputPhase == InputPhase.OnMouse) CheckDrag();
+        else if (InputHandler.Instance.inputPhase == InputPhase.OnMouseUp) EndDrag();
     }
 
     private void StartDrag()
     {
         CauldrenSlot hitSlot = GetSlotUnderMouse();
-        if (hitSlot == null) return;
-
-        Ingredient oldIngredient = beforeSlot ? beforeSlot.GetIngredient() : null;
+        if (hitSlot == null)
+        {
+            return;
+        }
+        isFocused = true;
+        //Ingredient oldIngredient = beforeSlot ? beforeSlot.GetIngredient() : null;
         Ingredient ingredient = hitSlot.GetIngredient();
 
-        if (dragState == DragState.ClickSelected)
+        if (InputHandler.Instance.inputType == InputType.Selected)
         {
-            HandleClickDrop(ingredient);
-            ResetDrag();
-        }
-        else
-        {
-            if (ingredient == null) return;
-            if (hitSlot != beforeSlot)
+            if (!isSelected)
             {
-                dragState = DragState.ClickSelected;
-                ingredient.IsChosed();
-                beforeSlot = hitSlot;
+                if (ingredient == null) return;
                 currentSlot = hitSlot;
+                currentIngredient = ingredient;
+                currentIngredient.IsChosed();
+                isSelected = true;
             }
             else
             {
-                dragState = DragState.ClickSelected;
-                beforeSlot = null;
-                currentSlot = hitSlot;
+                if (ingredient == null)
+                {
+                    HandleDropToSlot(currentIngredient, currentSlot, hitSlot);
+                    Release();
+                    isSelected = false;
+                }
+                else
+                {
+                    currentIngredient.MoveFail();
+                    currentSlot = hitSlot;
+                    currentIngredient = ingredient;
+                    currentIngredient.IsChosed();
+                    isSelected = true;
+                }
             }
         }
-        if (oldIngredient != null) CancelDrag(oldIngredient);
     }
-    void CheckSelected()
+    private void CheckDrag()
     {
-        if (dragState == DragState.ClickSelected)
+        if(InputHandler.Instance.inputType == InputType.Drag&& isFocused)
         {
-            if (DragVector.Instance.delta.magnitude > 0.2f)
-            {
-                dragState = DragState.Dragging;
-            }
+            isSelected = false;
         }
     }
     private void EndDrag()
     {
-        Ingredient ingredient = currentSlot ? currentSlot.GetIngredient() : null;
-
-        if (ingredient == null)
+        isFocused = false;
+        if (isSelected || currentIngredient==null) return;
+        CauldrenSlot hitSlot = GetSlotUnderMouse();
+        if (hitSlot == null)
         {
-            ResetDrag();
+            Cancel();
+            Release();
             return;
         }
-        if (dragState == DragState.Dragging)
+        Ingredient ingredient= hitSlot.GetIngredient();
+        if(HandleDropToSlot(currentIngredient, currentSlot, hitSlot))
         {
-            ingredient.NotChosed();
-            CauldrenSlot hitSlot = GetSlotUnderMouse();
-            Cauldren hitCauldren = GetCauldrenUnderMouse();
-
-            if (hitSlot != null)
-            {
-                HandleDropToSlot(ingredient, currentSlot, hitSlot, hitCauldren);
-            }
-            else if (hitCauldren != null)
-            {
-                HandleDropToCauldren(ingredient, currentSlot, hitCauldren);
-            }
-            else
-            {
-                ingredient.ReturnCauldren();
-            }
-
-            ResetDrag();
+            Release();
         }
+
     }
 
-    private void HandleClickDrop(Ingredient ingredient)
-    {
-        CauldrenSlot hitSlot = GetSlotUnderMouse();
-        Cauldren hitCauldren = GetCauldrenUnderMouse();
-
-        if (hitSlot != null)
-        {
-            HandleDropToSlot(ingredient, currentSlot, hitSlot, hitCauldren);
-        }
-        else if (hitCauldren != null)
-        {
-            HandleDropToCauldren(ingredient, currentSlot, hitCauldren);
-        }
-        else
-        {
-            ingredient.ReturnCauldren();
-        }
-    }
-
-
-
-    private void HandleDropToSlot(Ingredient ingredient, CauldrenSlot fromSlot, CauldrenSlot toSlot, Cauldren cauldren)
+    private bool HandleDropToSlot(Ingredient ingredient, CauldrenSlot fromSlot, CauldrenSlot toSlot)
     {
         if (fromSlot == toSlot)
         {
-            ingredient.ReturnCauldren();
+            ingredient.MoveFail();
+            return false;
         }
         else if (toSlot.GetIngredient() == null)
         {
             SwapIngredient(fromSlot, toSlot);
         }
-        else if (cauldren != null && cauldren.CheckHaveSlot())
+        else if (toSlot.GetEmptySlotFormParent()!=null)
         {
-            SwapIngredient(fromSlot, cauldren.GetEmptySlot());
+            SwapIngredient(fromSlot, toSlot.GetEmptySlotFormParent());
         }
         else
         {
-            ingredient.ReturnCauldren();
+            ingredient.MoveFail();
+            return false;
         }
+        return true;
     }
 
-    private void HandleDropToCauldren(Ingredient ingredient, CauldrenSlot fromSlot, Cauldren cauldren)
-    {
-        if (cauldren.FindSlot(fromSlot))
-        {
-            ingredient.ReturnCauldren();
-        }
-        else if (cauldren.CheckHaveSlot())
-        {
-            SwapIngredient(fromSlot, cauldren.GetEmptySlot());
-        }
-        else
-        {
-            ingredient.ReturnCauldren();
-        }
-    }
 
     private CauldrenSlot GetSlotUnderMouse()
     {
-        Vector2 pos = _camera.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 pos = InputHandler.Instance.GetCurrentMousePos();
         RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero, Mathf.Infinity, slotLayer);
         return hit.collider ? hit.collider.GetComponent<CauldrenSlot>() : null;
     }
 
-    private Cauldren GetCauldrenUnderMouse()
-    {
-        Vector2 pos = _camera.ScreenToWorldPoint(Input.mousePosition);
-        RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero, Mathf.Infinity, cauldrenLayer);
-        return hit.collider ? hit.collider.transform.parent.GetComponent<Cauldren>() : null;
-    }
 
     private void SwapIngredient(CauldrenSlot a, CauldrenSlot b)
     {
@@ -176,20 +128,14 @@ public class PlayerManager : Singleton<PlayerManager>
         a.SetIngredient(b.GetIngredient());
         b.SetIngredient(temp);
     }
-
-    private void CancelDrag(Ingredient ingredient)
+    private void Cancel()
     {
-        ingredient.NotChosed();
-        ingredient.ReturnCauldren();
-        ResetDrag();
+        currentIngredient.MoveFail();
+    }
+    private void Release()
+    {
+        currentIngredient = null;
+        currentSlot = null;
     }
 
-    private void ResetDrag()
-    {
-        dragState = DragState.None;
-        beforeSlot = null;
-        currentSlot = null;
-    }   
-
-    public enum DragState { None=0, Dragging=1, ClickSelected=2 };
 }
